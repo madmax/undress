@@ -21,12 +21,8 @@ module Undress
       rule_for(:a) {|e| "" }
     end
 
-    class WithAttributes < Parent
-      whitelist_attributes :id, :class
-    end
-
     def parse_with(grammar, html)
-      grammar.process!(Hpricot(html))
+      grammar.process!(Nokogiri::HTML(html) % 'body')
     end
 
     context "extending a grammar" do
@@ -56,19 +52,20 @@ module Undress
       end
     end
 
-    context "handles attributes" do
-      def attributes_for_tag(html)
-        WithAttributes.new.attributes(Hpricot(html).children.first)
-      end
+    class G1 < Undress::Grammar
+    end
 
-      test "whitelisted attributes are picked up in the attributes hash" do
-        attributes = attributes_for_tag("<p class='foo bar' id='baz'>Cuack</p>")
-        assert_equal({ :class => "foo bar", :id => "baz" }, attributes)
-      end
+    class G2 < Undress::Grammar
+      post_processing '!!!', ""
+    end
 
-      test "attributes that are not in the whitelist are ignored" do
-        attributes = attributes_for_tag("<p lang='es' id='saludo'>Hola</p>")
-        assert_equal({ :id => "saludo" }, attributes)
+    context "incapsulation" do
+      test "icolates post_processing_rules" do
+        o1 = parse_with G1, "<p>!!!</p>"
+        assert_equal '<p>!!!</p>', o1
+        o2 = parse_with G2, '!!!'
+        assert_equal '<p></p>', o2
+        assert_not_equal G1.post_processing_rules['!!!'], '!!!'
       end
     end
   end

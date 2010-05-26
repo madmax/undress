@@ -2,7 +2,6 @@ require File.expand_path(File.dirname(__FILE__) + "/../undress")
 
 module Undress
   class Textile < Grammar
-    whitelist_attributes :class, :id, :lang, :style, :colspan, :rowspan
 
     # entities
     post_processing(/&nbsp;/, " ")
@@ -10,7 +9,7 @@ module Undress
     # whitespace handling
     post_processing(/\n\n+/, "\n\n")
     post_processing(/\A\s+/, "")
-    post_processing(/\s+\z/, "\n")
+    post_processing(/[\n\s]+\z/, "\n")
 
     # special characters introduced by textile
     post_processing(/&#8230;/, "...")
@@ -69,7 +68,7 @@ module Undress
     # lists
     rule_for(:li) {|e|
       token = e.parent.name == "ul" ? "*" : "#"
-      nesting = e.ancestors.inject(1) {|total,node| total + (%(ul ol).include?(node.name) ? 0 : 1) }
+      nesting = e.ancestors('body *').inject(1) {|total,node| total + (%(ul ol).include?(node.name) ? 0 : 1) }
       "\n#{token * nesting} #{content_of(e)}"
     }
     rule_for(:ul, :ol) {|e|
@@ -91,7 +90,12 @@ module Undress
     rule_for(:td, :th) {|e| "|#{e.name == "th" ? "_. " : attributes(e)}#{content_of(e)}" }
 
     def attributes(node) #:nodoc:
-      filtered = super(node)
+      whitelisted_attributes = [:class, :id, :lang, :style, :colspan, :rowspan]
+
+      filtered = node.attributes.inject({}) do |attrs, (key, value)|
+        attrs[key.to_sym] = value.content if whitelisted_attributes.include?(key.to_sym)
+        attrs
+      end
 
       if filtered.has_key?(:colspan)
         return "\\#{filtered[:colspan]}. "

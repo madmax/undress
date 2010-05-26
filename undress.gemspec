@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name    = "undress"
-  s.version = "0.2.4"
-  s.date    = "2009-07-29"
+  s.version = "0.2.5"
+  s.date    = "2010-05-26"
 
   s.description = "Simply translate HTML to Textile, Markdown, or whatever other markup format you need"
   s.summary     = "Convert HTML into other markup languages"
@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.has_rdoc          = true
   s.rubygems_version  = "1.3.1"
 
-  s.add_dependency "hpricot"
+  s.add_dependency "nokogiri"
 
   if s.respond_to?(:add_development_dependency)
     s.add_development_dependency "sr-mg"

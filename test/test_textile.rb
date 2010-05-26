@@ -109,13 +109,13 @@ module Undress
         end
 
         test "converts <sup> tags" do
-          assert_renders_textile "foo ^sup^ bar", "foo <sup>sup</sup> bar"
-          assert_renders_textile "foo[^sup^]bar", "foo<sup>sup</sup>bar"
+          assert_renders_textile "foo ^sup^ bar\n", "foo <sup>sup</sup> bar"
+          assert_renders_textile "foo[^sup^]bar\n", "foo<sup>sup</sup>bar"
         end
 
         test "converts <sub> tags" do
-          assert_renders_textile "foo ~sub~ bar", "foo <sub>sub</sub> bar"
-          assert_renders_textile "foo[~sub~]bar", "foo<sub>sub</sub>bar"
+          assert_renders_textile "foo ~sub~ bar\n", "foo <sub>sub</sub> bar"
+          assert_renders_textile "foo[~sub~]bar\n", "foo<sub>sub</sub>bar"
         end
 
         test "converts <ins> tags" do
@@ -167,7 +167,7 @@ module Undress
         end
 
         test "converts <br> into a new line" do
-          assert_renders_textile "Foo\nBar", "Foo<br/>Bar"
+          assert_renders_textile "Foo\nBar\n", "Foo<br/>Bar"
         end
 
         test "converts blockquotes" do
@@ -274,16 +274,16 @@ module Undress
         end
 
         test "converts all fancy characters introduced by textile back into their 'source code'" do
-          assert_renders_textile "What the ... hell?", "What the &#8230; hell?"
-          assert_renders_textile "It's mine", "It&#8217;s mine"
-          assert_renders_textile "\"Fancy quoting\"", "&#8220;Fancy quoting&#8221;"
-          assert_renders_textile "How dashing--right?", "How dashing&#8212;right?"
-          assert_renders_textile "How dashing - right?", "How dashing &#8211; right?"
-          assert_renders_textile "2 x 2 = 4", "2 &#215; 2 = 4"
-          assert_renders_textile "2x2 = 4", "2&#215;2 = 4"
-          assert_renders_textile "Registered(r)", "Registered&#174;"
-          assert_renders_textile "Copyrighted(c)", "Copyrighted&#169;"
-          assert_renders_textile "Trademarked(tm)", "Trademarked&#8482;"
+          assert_renders_textile "What the ... hell?\n", "What the &#8230; hell?"
+          assert_renders_textile "It's mine\n", "It&#8217;s mine"
+          assert_renders_textile "\"Fancy quoting\"\n", "&#8220;Fancy quoting&#8221;"
+          assert_renders_textile "How dashing--right?\n", "How dashing&#8212;right?"
+          assert_renders_textile "How dashing - right?\n", "How dashing &#8211; right?"
+          assert_renders_textile "2 x 2 = 4\n", "2 &#215; 2 = 4"
+          assert_renders_textile "2x2 = 4\n", "2&#215;2 = 4"
+          assert_renders_textile "Registered(r)\n", "Registered&#174;"
+          assert_renders_textile "Copyrighted(c)\n", "Copyrighted&#169;"
+          assert_renders_textile "Trademarked(tm)\n", "Trademarked&#8482;"
         end
       end
 

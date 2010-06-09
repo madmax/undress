@@ -86,8 +86,8 @@ module Undress
     rule_for(:dd) {|e| ":= #{content_of(e)} =:\n" }
 
     # tables
-    rule_for(:table)   {|e| "\n\n#{content_of(e)}\n" }
-    rule_for(:tr)      {|e| "#{content_of(e)}|\n" }
+    rule_for(:table)   {|e| "\n#{table_attributes(e)}\n#{content_of(e)}\n" }
+    rule_for(:tr)      {|e| "#{row_attributes(e)}#{content_of(e)}|\n" }
     rule_for(:td, :th) {|e| "|#{cell_attributes(e)}#{content_of(e)}" }
 
     def attributes(node) #:nodoc:
@@ -110,6 +110,8 @@ module Undress
         if filtered.has_key?(:class) || filtered.has_key?(:id)
           klass = filtered.fetch(:class, "")
           id = filtered.fetch(:id, false) ? "#" + filtered[:id] : ""
+          klass.sub!(/(odd|even) ?/, '') if node.name == 'tr'
+          return if id == "" and klass == ""
           return "(#{klass}#{id})"
         end
 
@@ -119,6 +121,14 @@ module Undress
         ""
       end
       ""
+    end
+
+    def table_attributes(node)
+      attributes(node) == "" ? "" : "table#{attributes(node)}. "
+    end
+
+    def row_attributes(node)
+      attributes(node) == "" ? "" : "#{attributes(node)}. "
     end
 
     def cell_attributes(node)

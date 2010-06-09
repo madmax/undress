@@ -83,7 +83,7 @@ module Undress
         ""
       elsif anchor_outside_headings?(e)
         process_anchor(e)
-      elsif !e.get_attribute("href").blank?
+      elsif not (e.get_attribute("href").nil? || e.get_attribute("href") == '')
         process_link(e)
       else
         ""
@@ -106,9 +106,9 @@ module Undress
       inner, href = content_of(e), e.get_attribute("href")
       case href
       when /^\/#/
-        "[\"#{inner}\":#{href}"
+        "\"#{inner}\":#{href}"
       when /^#/
-        "[#{inner} -> #{href}]"
+        "\"#{inner}\":#{href}"
       when /^(https?|s?ftp):\/\//
         href.gsub(/^(https?|s?ftp):\/\//, "") == inner ? "[#{href}]" : "[#{inner} -> #{href}]"
       when /^[^\/]/

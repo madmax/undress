@@ -30,7 +30,7 @@ class TestMarkup < Test::Unit::TestCase
   end
 
   def test_general_markup
-    counter = {:first => 0, :second => 0, :fail => 0}
+    counter = Hash.new(0)
     @markup_fixtures.each do |filename, docs|
       print "\n#{filename}\t"
       docs.each do |doc|
@@ -78,6 +78,9 @@ class TestMarkup < Test::Unit::TestCase
     elsif in_markup == html
       putc ":"
       return :second
+    elsif in_markup.delete(' ') == html.delete(' ')
+      putc "|"
+      return :whitespace
     else
       putc "x"
       $stderr.puts "\n------- #{filename} failed -------"

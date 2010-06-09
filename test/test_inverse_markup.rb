@@ -1,7 +1,8 @@
-require File.expand_path(File.dirname(__FILE__) + "/test_helper")
+path = File.dirname(__FILE__)
+require File.expand_path(path + "/test_helper")
 require 'ruby-debug'
 require 'yaml'
-require '../../crabgrass/vendor/gems/riseuplabs-greencloth-0.1/lib/greencloth.rb'
+require File.expand_path(path + '/../../crabgrass/vendor/gems/riseuplabs-greencloth-0.1/lib/greencloth.rb')
 
 test_dir =  File.dirname(File.expand_path(__FILE__))
 # for now we only test one direction
@@ -81,8 +82,8 @@ class TestMarkup < Test::Unit::TestCase
       putc "x"
       $stderr.puts "\n------- #{filename} failed -------"
       $stderr.puts "---- IN ----"; $stderr.puts in_markup
-  #    puts "---- OUT ----"; puts greencloth
-  #    puts "---- EXPECTED ----"; puts in_greencloth
+      $stderr.puts "---- OUT ----"; $stderr.puts greencloth
+      $stderr.puts "---- EXPECTED ----"; $stderr.puts in_greencloth
       $stderr.puts "---- BACK TO HTML ----"; $stderr.puts html
       $stderr.puts ""
       return :fail

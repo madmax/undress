@@ -88,7 +88,7 @@ module Undress
     # tables
     rule_for(:table)   {|e| "\n\n#{content_of(e)}\n" }
     rule_for(:tr)      {|e| "#{content_of(e)}|\n" }
-    rule_for(:td, :th) {|e| "|#{e.name == "th" ? "_. " : attributes(e)}#{content_of(e)}" }
+    rule_for(:td, :th) {|e| "|#{cell_attributes(e)}#{content_of(e)}" }
 
     def attributes(node) #:nodoc:
       filtered = super(node)
@@ -120,7 +120,20 @@ module Undress
       end
       ""
     end
+
+    def cell_attributes(node)
+      if node.name == 'th'
+        if attributes(node).nil? or attributes(node) == ''
+          "_."
+        else
+          "_#{attributes(node)}"
+        end
+      else
+        attributes(node)
+      end
+    end
   end
+
 
   add_markup :textile, Textile
 end

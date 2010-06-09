@@ -96,11 +96,11 @@ module Undress
       if filtered
 
         if filtered.has_key?(:colspan)
-          return "\\#{filtered[:colspan]}. "
+          return "\\#{filtered[:colspan]}"
         end
 
         if filtered.has_key?(:rowspan)
-          return "/#{filtered[:rowspan]}. "
+          return "/#{filtered[:rowspan]}"
         end
 
         if filtered.has_key?(:lang)
@@ -122,15 +122,9 @@ module Undress
     end
 
     def cell_attributes(node)
-      if node.name == 'th'
-        if attributes(node).nil? or attributes(node) == ''
-          "_."
-        else
-          "_#{attributes(node)}"
-        end
-      else
-        attributes(node)
-      end
+      ret = (node.name == 'th') ? "_#{attributes(node)}" : attributes(node)
+      return if ret.nil? or ret == ''
+      ret[-1] == '.' ? "#{ret} " : "#{ret}. "
     end
   end
 

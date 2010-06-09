@@ -29,7 +29,8 @@ module Undress
       "[#{content_of(e)}#{title}:#{e["href"]}]"
     }
     rule_for(:img) {|e|
-      alt = e.has_attribute?("alt") ? "(#{e["alt"]})" : ""
+      alt = e.has_attribute?("alt") && e["alt"]
+      alt = "(#{alt})" unless alt == ""
       "!#{e["src"]}#{alt}!"
     }
     rule_for(:strong)  {|e| complete_word?(e) ? "*#{attributes(e)}#{content_of(e)}*" : "[*#{attributes(e)}#{content_of(e)}*]"}
@@ -91,36 +92,36 @@ module Undress
     rule_for(:td, :th) {|e| "|#{cell_attributes(e)}#{content_of(e)}" }
 
     def attributes(node) #:nodoc:
-      filtered = super(node)
+      filtered ||= super(node)
+      attribs = ""
 
       if filtered
-
-        if filtered.has_key?(:colspan)
-          return "\\#{filtered[:colspan]}"
+        if colspan = filtered.delete(:colspan)
+          attribs << "\\#{colspan}"
         end
 
-        if filtered.has_key?(:rowspan)
-          return "/#{filtered[:rowspan]}"
+        if rowspan = filtered.delete(:rowspan)
+          attribs << "/#{rowspan}"
         end
 
-        if filtered.has_key?(:lang)
-          return "[#{filtered[:lang]}]"
+        if lang = filtered.delete(:lang)
+          attribs << "[#{filtered[:lang]}]"
         end
 
-        if filtered.has_key?(:class) || filtered.has_key?(:id)
-          klass = filtered.fetch(:class, "")
-          id = filtered.fetch(:id, false) ? "#" + filtered[:id] : ""
+        if klass = filtered.delete(:class)
           klass.sub!(/(odd|even) ?/, '') if node.name == 'tr'
-          return "" if id == "" and klass == ""
-          return "(#{klass}#{id})"
+        end
+        id = filtered.delete(:id)
+        if (klass && klass != '') or id
+          id = id.nil? ? "" : "#" + id
+          attribs << "(#{klass}#{id})"
         end
 
-        if filtered.has_key?(:style)
-          return "{#{filtered[:style]}}"
+        if style = filtered.delete(:style)
+          attribs << "{#{style}}"
         end
-        ""
       end
-      ""
+      attribs
     end
 
     def table_attributes(node)

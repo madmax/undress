@@ -111,7 +111,7 @@ module Undress
           klass = filtered.fetch(:class, "")
           id = filtered.fetch(:id, false) ? "#" + filtered[:id] : ""
           klass.sub!(/(odd|even) ?/, '') if node.name == 'tr'
-          return if id == "" and klass == ""
+          return "" if id == "" and klass == ""
           return "(#{klass}#{id})"
         end
 

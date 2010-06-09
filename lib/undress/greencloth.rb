@@ -79,36 +79,50 @@ module Undress
     end
 
     def process_links_and_anchors(e)
-      return "" if e.empty?
-      inner, name, href = e.inner_html, e.get_attribute("name"), e.get_attribute("href")
-
-      # is an anchor? and cannot be child of any h1..h6
-      if name && !e.parent.name.match(/^h1|2|3|4|5|6$/)
-        inner == name || inner == name.gsub(/-/,"\s") ? "[# #{inner} #]" : "[# #{inner} -> #{name} #]"
-      # is a link?
-      elsif href && href != ""
-        case href
-          when /^\/#/
-            "[\"#{inner}\":#{href}"
-          when /^#/
-            "[#{inner} -> #{href}]"
-          when /^(https?|s?ftp):\/\//
-            href.gsub(/^(https?|s?ftp):\/\//, "") == inner ? "[#{href}]" : "[#{inner} -> #{href}]"
-          when /^[^\/]/
-            if inner != href
-              "[#{e.inner_text} -> #{href}]"
-            else
-              "[#{e.inner_text}]"
-            end
-          when /^\/.[^\/]*\/.[^\/]*\//
-            "[#{inner} -> #{href}]"
-          when /(?:\/page\/\+)[0-9]+$/
-            "[#{inner} -> +#{href.gsub(/\+[0-9]+$/)}]"
-          else
-            process_as_wiki_link(e)
-        end
+      if e.empty?
+        ""
+      elsif anchor_outside_headings?(e)
+        process_anchor(e)
+      elsif !e.get_attribute("href").blank?
+        process_link(e)
       else
         ""
+      end
+    end
+
+    def anchor_outside_headings?(e)
+      e.get_attribute("name") and
+      e.parent.is_a?(Hpricot::Doc) || !e.parent.name.match(/^h1|2|3|4|5|6$/)
+    end
+
+    def process_anchor(e)
+      inner, name = e.inner_html, e.get_attribute("name")
+      inner == name || inner == name.gsub(/-/,"\s") ?
+        "[# #{inner} #]" :
+        "[# #{inner} -> #{name} #]"
+    end
+
+    def process_link(e)
+      inner, href = e.inner_html, e.get_attribute("href")
+      case href
+      when /^\/#/
+        "[\"#{inner}\":#{href}"
+      when /^#/
+        "[#{inner} -> #{href}]"
+      when /^(https?|s?ftp):\/\//
+        href.gsub(/^(https?|s?ftp):\/\//, "") == inner ? "[#{href}]" : "[#{inner} -> #{href}]"
+      when /^[^\/]/
+        if inner != href
+          "[#{e.inner_text} -> #{href}]"
+        else
+          "[#{e.inner_text}]"
+        end
+      when /^\/.[^\/]*\/.[^\/]*\//
+        "[#{inner} -> #{href}]"
+      when /(?:\/page\/\+)[0-9]+$/
+        "[#{inner} -> +#{href.gsub(/\+[0-9]+$/)}]"
+      else
+        process_as_wiki_link(e)
       end
     end
 

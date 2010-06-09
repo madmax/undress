@@ -96,14 +96,14 @@ module Undress
     end
 
     def process_anchor(e)
-      inner, name = e.inner_html, e.get_attribute("name")
+      inner, name = content_of(e), e.get_attribute("name")
       inner == name || inner == name.gsub(/-/,"\s") ?
         "[# #{inner} #]" :
         "[# #{inner} -> #{name} #]"
     end
 
     def process_link(e)
-      inner, href = e.inner_html, e.get_attribute("href")
+      inner, href = content_of(e), e.get_attribute("href")
       case href
       when /^\/#/
         "[\"#{inner}\":#{href}"
@@ -127,7 +127,7 @@ module Undress
     end
 
     def process_as_wiki_link(e)
-      inner, name, href = e.inner_html, e.get_attribute("name"), e.get_attribute("href")
+      inner, name, href = content_of(e), e.get_attribute("name"), e.get_attribute("href")
 
       # pages or group pages
       context_name, page_name = href.split("/")[1..2]

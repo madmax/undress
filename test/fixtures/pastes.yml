@@ -27,4 +27,19 @@ html: |
 in: |
   |A|B|
   |C|D|
+---
+html: |
+  <span style="font-size: 80%; font-color: blue;">
+  text
+  </span>
 
+in: |
+  %{font-color: blue; font-size: 80%}text%
+---
+html: |
+  <span style="background: none repeat scroll 0% 0% #ffff00;">
+  text
+  </span>
+
+in: |
+  %{background: none repeat scroll #ffff00}text%

@@ -1,0 +1,30 @@
+---
+html: |
+  <meta content="text/html; charset=utf-8" http-equiv="CONTENT-TYPE" /> 
+  <title></title> 
+  <meta content="OpenOffice.org 3.2  (Linux)" name="GENERATOR" /> 
+  <table cellspacing="0" cellpadding="4" bordercolor="#000000" border="1" width="100%"> <col width="128*" /> <col width="128*" /> 
+    <tbody>
+      <tr valign="TOP"> 
+        <td width="50%"> 
+          <p>A</p> 
+        </td> 
+        <td width="50%"> 
+          <p>B</p> 
+        </td> 
+      </tr> 
+      <tr valign="TOP"> 
+        <td width="50%"> 
+          <p>C</p> 
+        </td> 
+        <td width="50%"> 
+          <p>D</p> 
+        </td> 
+      </tr> 
+    </tbody>
+  </table>
+
+in: |
+  |A|B|
+  |C|D|
+

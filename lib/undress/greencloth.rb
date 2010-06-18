@@ -28,13 +28,17 @@ module Undress
     rule_for(:li) {|e|
       offset = ""
       li = e
+      # start is not whitelisted so we access it directly
+      if li.parent.name == 'ol' and li.previous_sibling.nil?
+        start = li.parent.has_attribute?("start") && li.parent["start"]
+      end
       while li.parent
         if    li.parent.name == "ul" then offset = "*#{offset}"
         elsif li.parent.name == "ol" then offset = "##{offset}"
         else  return offset end
         li = li.parent.parent ? li.parent.parent : nil
       end
-      "\n#{offset} #{content_of(e)}"
+      "\n#{offset}#{start} #{content_of(e)}"
     }
 
     # text formatting

@@ -44,21 +44,17 @@ module Undress
     # text formatting
     rule_for(:pre) {|e|
       if e.children && e.children.all? {|n| n.text? && n.content =~ /^\s+$/ || n.elem? && n.name == "code" }
-        "\n\n<pre><code>#{content_of(e % "code")}</code></pre>"
+        "\n\n<code>#{unescaped_content_of(e % "code")}</code>"
       else
-        "\n\n<pre>#{content_of(e)}</pre>"
+        "\n\n<pre>#{unescaped_content_of(e)}</pre>"
       end
     }
 
     rule_for(:code) {|e|
       if e.inner_html.match(/\n/)
-        if e.parent && e.parent.name != "pre"
-          "<pre><code>#{content_of(e)}</code></pre>"
-        else
-          "<code>#{content_of(e)}</code>"
-        end
+          "<code>#{unescaped_content_of(e)}</code>"
       else
-        "@#{content_of(e)}@"
+        "@#{unescaped_content_of(e)}@"
       end
     }
 
@@ -66,6 +62,10 @@ module Undress
     rule_for(:embed, :object, :param) {|e|
       e.to_html
     }
+
+    def unescaped_content_of(e)
+      e.children.map { |x| x.to_plain_text }.join
+    end
 
     def process_headings(h)
       h.children.each {|e|

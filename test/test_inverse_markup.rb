@@ -82,6 +82,18 @@ class TestMarkup < Test::Unit::TestCase
       putc "|"
       return :whitespace
     else
+      # we are replacing some tags... let's see if this is what happened
+      tags_changed = in_markup
+      tags_changed.gsub! /<(\/?)b>/, '<\1strong>'
+      tags_changed.gsub! /<(\/?)i>/, '<\1em>'
+      if tags_changed == html
+        putc "t"
+        return :tags
+      elsif tags_changed.delete(' ') == html.delete(' ')
+        putc "T"
+        return :tags_n_whitespace
+      end
+
       putc "x"
       $stderr.puts "\n------- #{filename} failed -------"
       $stderr.puts "---- IN ----"; $stderr.puts in_markup

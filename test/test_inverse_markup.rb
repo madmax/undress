@@ -34,6 +34,10 @@ class TestMarkup < Test::Unit::TestCase
     @markup_fixtures.each do |filename, docs|
       print "\n#{filename}\t"
       docs.each do |doc|
+        unless doc
+          putc 'D'
+          next
+        end
         html = doc['out'] || doc['html']
         unless html
           putc '0'

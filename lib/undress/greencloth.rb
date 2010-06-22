@@ -2,14 +2,19 @@ require File.expand_path(File.dirname(__FILE__) + "/textile")
 
 module Undress
   class GreenCloth < Textile
-    whitelist_attributes :class, :id, :lang, :style, :colspan, :rowspan
+    whitelist_attributes :class, :style, :colspan, :rowspan
+    whitelist_styles :background_color, :background, :"text-align", :"text-decoration",
+      :"font-weight", :color
 
     Undress::ALLOWED_TAGS = [
       'div', 'a', 'img', 'br', 'i', 'u', 'b', 'pre', 'kbd', 'code', 'cite', 'strong', 'em',
       'ins', 'sup', 'sub', 'del', 'table', 'tbody', 'thead', 'tr', 'td', 'th', 'ol', 'ul',
       'li', 'p', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'notextile', 'blockquote',
-      'object', 'embed', 'param', 'acronym', 'dd', 'dl', 'dt'
+      'object', 'embed', 'param', 'acronym', 'dd', 'dl', 'dt', 'font'
     ]
+
+    # elements we just ignore for now...
+    rule_for(:font) {|e| content_of(e) }
 
     # table of contents
     pre_processing("ul.toc") do |toc|
@@ -35,7 +40,8 @@ module Undress
       while li.parent
         if    li.parent.name == "ul" then offset = "*#{offset}"
         elsif li.parent.name == "ol" then offset = "##{offset}"
-        else  return offset end
+        else  return "\n#{offset}#{start} #{content_of(e)}"
+        end
         li = li.parent.parent ? li.parent.parent : nil
       end
       "\n#{offset}#{start} #{content_of(e)}"

@@ -3,6 +3,8 @@ require File.expand_path(File.dirname(__FILE__) + "/../undress")
 module Undress
   class Textile < Grammar
     whitelist_attributes :class, :id, :lang, :style, :colspan, :rowspan
+    whitelist_styles :background_color, :background, :"text-align", :"text-decoration",
+      :"font-weight", :color
 
     # entities
     post_processing(/&nbsp;/, " ")
@@ -61,7 +63,9 @@ module Undress
       if e.parent
         case e.parent.name
         when "blockquote" then "#{at}#{content_of(e)}\n\n"
-        when "td" then "#{at}#{content_of(e)}<br/>"
+        when "td" then "#{content_of(e)}<br/>"
+        when "th" then "#{content_of(e)}<br/>"
+        when "li" then "#{content_of(e)}<br/>"
         else "\n\n#{at}#{content_of(e)}\n\n"
         end
       else
@@ -96,6 +100,8 @@ module Undress
     rule_for(:ul, :ol) {|e|
       if e.ancestors.detect {|node| %(ul ol).include?(node.name) }
         content_of(e)
+      elsif e.ancestor('td')
+        "#{content_of(e)}\n\n"
       else
         "\n#{content_of(e)}\n\n"
       end
@@ -107,25 +113,39 @@ module Undress
     rule_for(:dd) {|e| ":= #{content_of(e)} =:\n" }
 
     # tables
-    rule_for(:table)   {|e| "\n#{table_attributes(e)}\n#{content_of(e)}\n" }
-    rule_for(:tr)      {|e| "#{row_attributes(e)}#{content_of(e)}|\n" }
-    rule_for(:td, :th) {|e| "|#{cell_attributes(e)}#{cell_content_of(e)}" }
+    rule_for(:table)   {|e| complex_table?(e) ? html_node(e) :
+      "#{table_attributes(e)}\n#{content_of(e)}" }
+    rule_for(:tr)      {|e| complex_table?(e) ? html_node(e) :
+      "#{row_attributes(e)}#{content_of(e)}|\n" }
+    rule_for(:td, :th) {|e| complex_table?(e) ? html_node(e) :
+      "|#{cell_attributes(e)}#{cell_content_of(e)}" }
 
-    def attributes(node) #:nodoc:
+    # if a table contains a list or a another table we need html table syntax
+    def complex_table?(node)
+      return false unless %(table tr td th).include?(node.name)
+      table = node.ancestor 'table'
+      table.search('table, li').any?
+    end
+
+    def html_node(node)
+      "<#{node.name} #{attributes(node, false)}>\n#{content_of(node)}</#{node.name}>\n"
+    end
+
+    def attributes(node, textile=true) #:nodoc:
       filtered ||= super(node)
       attribs = ""
 
       if filtered
         if colspan = filtered.delete(:colspan)
-          attribs << "\\#{colspan}"
+          attribs += textile ? "\\#{colspan}" : "colspan = #{colspan} "
         end
 
         if rowspan = filtered.delete(:rowspan)
-          attribs << "/#{rowspan}"
+          attribs += textile ? "/#{rowspan}" : "rowspan = #{colspan} "
         end
 
         if lang = filtered.delete(:lang)
-          attribs << "[#{filtered[:lang]}]"
+          attribs += textile ? "[#{lang}]" : "lang=#{lang} "
         end
 
         if klass = filtered.delete(:class)
@@ -134,32 +154,50 @@ module Undress
         end
         id = filtered.delete(:id)
         if (klass && klass != '') or id
-          id = id.nil? ? "" : "#" + id
-          attribs << "(#{klass}#{id})"
+          if textile
+            id = id.nil? ? "" : "#" + id
+            attribs << "(#{klass}#{id})"
+          else
+            attribs << "class=#{klass} "
+            attribs << "id=#{id} "
+          end
         end
 
-        if style = filtered.delete(:style)
-          attribs << "{#{filter_css(node,style)}}"
+        if styles(node)&& styles(node).any?
+          css = process_css(node, styles(node))
+          if css && css != ""
+            attribs += textile ? "{#{css}}" : "style=#{css} "
+          end
         end
       end
       attribs
     end
 
-    def filter_css(node,style)
+    def process_css(node, styles)
       return unless node
-      case node.name
-      when 'span'
-        # remove dangling ;
-        style.sub!(/;\s*$/,'')
-        # % sign in span styles is confusing textile
-        # background can have two % values - we remove them.
-        style.gsub!(/(background:[^;]*)\s+\d+%\s*\d*%/,'\1')
-        # we move the first style with a % to the end of the style
-        style.sub!(/(;|^)([^%;}]*%[^;%}]*);\s*([^%]+)$/,'\1\3; \2')
-        # all others are removed.
-        style.gsub!(/(;|^)([^%;}]*%[^;%}]*);/,'')
+      css = ''
+      styles.each_pair do |key, value|
+        case key
+        when :background
+          # no position
+          value.gsub!(/\s*\d+%/,'')
+          # no image
+          value.gsub!(/\s*url\([\)]*\)/,'')
+          # no repeat
+          value.gsub!(/\s*(no-)?repeat(-[xy])?/,'')
+          # no attachement
+          value.gsub!(/\s*(fixed|scroll)/,'')
+          # no none
+          value.gsub!(/\s*none/,'')
+          # only background color remains
+          value.gsub!(/\s/,'')
+          css << "#{key}: #{value}; " if value != ''
+        else
+          css << "#{key}: #{value}; " if value != ''
+        end
       end
-      style
+      # remove dangling ;
+      css.sub!(/;\s*$/,'')
     end
 
     def table_attributes(node)

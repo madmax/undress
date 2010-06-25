@@ -13,8 +13,7 @@ module Undress
       'object', 'embed', 'param', 'acronym', 'dd', 'dl', 'dt', 'font'
     ]
 
-    # elements we just ignore for now...
-    rule_for(:font) {|e| content_of(e) }
+    Undress::NO_TEXT_TAGS = %w(img br table tbody thead tr ol ul)
 
     # table of contents
     pre_processing("ul.toc") do |toc|

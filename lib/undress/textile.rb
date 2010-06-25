@@ -2,7 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + "/../undress")
 
 module Undress
   class Textile < Grammar
-    whitelist_attributes :class, :id, :lang, :style, :colspan, :rowspan
+    whitelist_attributes :class, :id, :lang, :style, :colspan, :rowspan, :bgcolor
     whitelist_styles :"background-color", :background, :"text-align", :"text-decoration",
       :"font-weight", :color
     DEFAULT_STYLES = {:"background-color" => /(#ffffff|white)/i,
@@ -173,8 +173,12 @@ module Undress
           end
         end
 
-        if styles(node)&& styles(node).any?
-          css = process_css(node, styles(node))
+        bgcolor = filtered.delete(:bgcolor)
+
+        if styles(node)&& styles(node).any? or bgcolor
+          styles = styles(node) || {}
+          styles[%s:background-color:] ||= bgcolor
+          css = process_css(node, styles)
           if css && css != ""
             attribs += textile ? "{#{css}}" : "style=#{css} "
           end

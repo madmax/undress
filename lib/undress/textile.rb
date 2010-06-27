@@ -184,17 +184,12 @@ module Undress
           end
         end
 
-        bgcolor = filtered.delete(:bgcolor)
-
         styles = styles(node) || {}
-        if styles.any? or bgcolor
-          align = styles.delete(%s:text-align:) if textile
+        if bgcolor = filtered.delete(:bgcolor)
           styles[%s:background-color:] ||= bgcolor
-          css = process_css(node, styles)
-          if css && css != ""
-            attribs += textile ? "{#{css}}" : %Q(style="#{css}" )
-          end
         end
+
+        align = styles.delete(%s:text-align:) if textile
         align ||= filtered.delete(:align)
         if align and textile
           attribs += case align.downcase
@@ -203,6 +198,12 @@ module Undress
                      when 'justify' then '<>'
                      end
         end
+
+        css = process_css(node, styles)
+        if css && css != ""
+          attribs += textile ? "{#{css}}" : %Q(style="#{css}" )
+        end
+
       end
       attribs
     end

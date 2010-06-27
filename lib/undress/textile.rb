@@ -2,7 +2,8 @@ require File.expand_path(File.dirname(__FILE__) + "/../undress")
 
 module Undress
   class Textile < Grammar
-    whitelist_attributes :class, :id, :lang, :style, :colspan, :rowspan, :bgcolor
+    whitelist_attributes :class, :id, :lang, :style, :colspan, :rowspan,
+      :bgcolor, :align
     whitelist_styles :"background-color", :background, :"text-align", :"text-decoration",
       :"font-weight", :color
     DEFAULT_STYLES = {:"background-color" => /(#ffffff|white)/i,
@@ -10,6 +11,16 @@ module Undress
       :"text-align" => /left/i,
       :"text-decoration" => /none/i,
       :color => /(#000000|black)/i }
+
+
+    # we try to get rid of unnecessary paras...
+    pre_processing("td p, th p, li p") do |p|
+      # only work on single children...
+      unless p.parent.children.detect{ |sib| sib != p and sib.to_html.match /\S/}
+        Hpricot::Elements[p.parent].set p.attributes.to_hash
+        p.swap p.inner_html
+      end
+    end
 
     # entities
     post_processing(/&nbsp;/, " ")
@@ -175,13 +186,22 @@ module Undress
 
         bgcolor = filtered.delete(:bgcolor)
 
-        if styles(node)&& styles(node).any? or bgcolor
-          styles = styles(node) || {}
+        styles = styles(node) || {}
+        if styles.any? or bgcolor
+          align = styles.delete(%s:text-align:) if textile
           styles[%s:background-color:] ||= bgcolor
           css = process_css(node, styles)
           if css && css != ""
-            attribs += textile ? "{#{css}}" : "style=#{css} "
+            attribs += textile ? "{#{css}}" : %Q(style="#{css}" )
           end
+        end
+        align ||= filtered.delete(:align)
+        if align and textile
+          attribs += case align.downcase
+                     when 'center' then '='
+                     when 'right'  then '>'
+                     when 'justify' then '<>'
+                     end
         end
       end
       attribs

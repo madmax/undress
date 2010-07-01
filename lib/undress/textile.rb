@@ -15,8 +15,11 @@ module Undress
 
     # we try to get rid of unnecessary paras...
     pre_processing("td p, th p, li p") do |p|
-      # only work on single children...
-      unless p.parent.children.detect{ |sib| sib != p and sib.to_html.match /\S/}
+      if p.parent.children.detect{ |sib| sib != p and sib.to_html.match /\S/}
+        if p.attributes.to_hash.empty?
+          p.swap p.inner_html + "<br/>"
+        end
+      else
         Hpricot::Elements[p.parent].set p.attributes.to_hash
         p.swap p.inner_html
       end
@@ -81,14 +84,10 @@ module Undress
     rule_for(:p, :div) do |e|
       at = ( e.name == 'div' or attributes(e) != "" ) ?
         "#{e.name}#{attributes(e)}. " : ""
-      if e.parent
-        case e.parent.name
-        when "blockquote" then "#{at}#{content_of(e)}\n\n"
-        when "td" then "#{content_of(e)}<br/>"
-        when "th" then "#{content_of(e)}<br/>"
-        when "li" then "#{content_of(e)}<br/>"
-        else "\n\n#{at}#{content_of(e)}\n\n"
-        end
+      if e.parent and e.parent.name == 'blockquote'
+        "#{at}#{content_of(e)}\n\n"
+      elsif e.ancestor('table') and !complex_table?(e)
+        html_node(e)
       else
         "\n\n#{at}#{content_of(e)}\n\n"
       end
@@ -141,15 +140,14 @@ module Undress
     rule_for(:td, :th) {|e| complex_table?(e) ? html_node(e) :
       "|#{cell_attributes(e)}#{cell_content_of(e)}" }
 
-    # if a table contains a list or a another table we need html table syntax
+    # if a table contains a list or a para or another table we need html table syntax
     def complex_table?(node)
-      return false unless %(table tr td th).include?(node.name)
       table = node.ancestor 'table'
       table.search('table, li').any?
     end
 
     def html_node(node)
-      "<#{node.name} #{attributes(node, false)}>\n#{content_of(node)}</#{node.name}>\n"
+      "<#{node.name}#{attributes(node, false)}>\n#{content_of(node)}</#{node.name}>\n"
     end
 
     def attributes(node, textile=true) #:nodoc:
@@ -158,15 +156,15 @@ module Undress
 
       if filtered
         if colspan = filtered.delete(:colspan)
-          attribs += textile ? "\\#{colspan}" : "colspan = #{colspan} "
+          attribs += textile ? "\\#{colspan}" : " colspan = #{colspan}"
         end
 
         if rowspan = filtered.delete(:rowspan)
-          attribs += textile ? "/#{rowspan}" : "rowspan = #{colspan} "
+          attribs += textile ? "/#{rowspan}" : " rowspan = #{colspan}"
         end
 
         if lang = filtered.delete(:lang)
-          attribs += textile ? "[#{lang}]" : "lang=#{lang} "
+          attribs += textile ? "[#{lang}]" : " lang=#{lang}"
         end
 
         if klass = filtered.delete(:class)
@@ -179,8 +177,8 @@ module Undress
             id = id.nil? ? "" : "#" + id
             attribs << "(#{klass}#{id})"
           else
-            attribs << "class=#{klass} "
-            attribs << "id=#{id} "
+            attribs << " class=#{klass}"
+            attribs << " id=#{id}"
           end
         end
 
@@ -201,7 +199,7 @@ module Undress
 
         css = process_css(node, styles)
         if css && css != ""
-          attribs += textile ? "{#{css}}" : %Q(style="#{css}" )
+          attribs += textile ? "{#{css}}" : %Q( style="#{css}")
         end
 
       end

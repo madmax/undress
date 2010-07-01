@@ -195,13 +195,16 @@ module Undress
         end
 
         styles = styles(node) || {}
-        styles[%s:text-align:] ||= filtered.delete(:align)
+        if align = filtered.delete(:align)
+          styles[%s:text-align:] ||= align.downcase
+        end
+
         if bgcolor = filtered.delete(:bgcolor)
-          styles[%s:background-color:] ||= bgcolor
+          styles[%s:background-color:] ||= bgcolor.downcase
         end
 
         if textile and align = styles.delete(%s:text-align:)
-          attribs += case align.downcase
+          attribs += case align
                      when 'center' then '='
                      when 'right'  then '>'
                      when 'justify' then '<>'

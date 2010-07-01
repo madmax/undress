@@ -18,8 +18,9 @@ html: |-
   </tbody>
   </table>
 in: |
-  |{background-color:#c4bc96}a|b|c|
+  |{background-color: #c4bc96}. a|b|c|
   |1|2|3|
+---
 # paras with aligns should be added using spans and <br/>
 # para spanning the whole cell should set cells style
 html: |-
@@ -36,18 +37,18 @@ html: |-
   	</tr>
   </table>
 in: |
-  |a|%{text-align: center}b%<br/>c|>. c|
-  |=. 1|{background-color: #6789ab}=. 2|=. 3|
+  |a|<p style="text-align: right">b</p>c|>. c|
+  |=. 1|={background-color: #6789ab}. 2|=. 3|
 out: |-
   <table>
   	<tr class="odd">
   		<td>a</td> 
-  		<td><span style="text-align:right">b</span>c</td>
-  		<td style="text-align:right">c</td>
+  		<td><p style="text-align: right;">b</p>c</td>
+  		<td style="text-align:right;">c</td>
   	</tr>
   	<tr class="even">
-  		<td style="text-align:center">1</td>
-  		<td style="text-align:center; background-color: #6789ab">2</td>
-  		<td style='text-align:center'>3</td>
+  		<td style="text-align:center;">1</td>
+  		<td style="text-align:center; background-color: #6789ab;">2</td>
+  		<td style='text-align:center;'>3</td>
   	</tr>
   </table>

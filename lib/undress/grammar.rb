@@ -213,7 +213,7 @@ module Undress
       return unless style_attrib = node[:style]
       styles = style_attrib.scan /(\S+):\s*(([^&;]+|&[^&;\s]+;)+)\s*(;|$)/
       styles.map{|a| [a[0], a[1]]}.inject({}) do |hash,(key,value)|
-        hash[key.to_sym] = value if whitelisted_styles.include?(key.to_sym)
+        hash[key.downcase.to_sym] = value.downcase if whitelisted_styles.include?(key.to_sym)
         hash
       end
     end

@@ -55,7 +55,6 @@ module Undress
       "!#{e["src"]}#{alt}!"
     }
     rule_for(:span)  {|e| attributes(e) == "" ? content_of(e) : wrap_with('%', e) }
-    rule_for(:div)  {|e| attributes(e) == "" ? "#{content_of(e)}\n\n" : "#{wrap_with('%', e)}\n\n" }
     rule_for(:strong, :b)  {|e| wrap_with('*', e) }
     rule_for(:em)      {|e| wrap_with('_', e) }
     rule_for(:code)    {|e| "@#{attributes(e)}#{content_of(e)}@" }
@@ -260,18 +259,9 @@ module Undress
       ret[-1] == '.' ? "#{ret} " : "#{ret}. "
     end
 
-    # some textile does not work in table cells.
-    # trying to work around this as good as possible
+    # empty cells cause problems when parsing the textile
     def cell_content_of(node)
-      content = content_of(node)
-      return " " if content == ""
-      # p in cells does not work. apply the style to td instead.
-      # TODO: figure out if we have some style applied already.
-      if content[0..1] == 'p{'
-        content[1..-1]
-      else
-        content
-      end
+      content_of(node) == "" ? " " : content_of(node)
     end
   end
 

@@ -87,7 +87,8 @@ module Undress
       if e.parent and e.parent.name == 'blockquote'
         "#{at}#{content_of(e)}\n\n"
       elsif e.ancestor('table') and !complex_table?(e)
-        html_node(e)
+        # can't use p textile in simple tables
+        html_node(e, false)
       else
         "\n\n#{at}#{content_of(e)}\n\n"
       end
@@ -146,8 +147,20 @@ module Undress
       table.search('table, li').any?
     end
 
-    def html_node(node)
-      "<#{node.name}#{attributes(node, false)}>\n#{content_of(node)}</#{node.name}>\n"
+    def html_node(node, with_newline = true)
+      tag = node.name
+      attributes = attributes(node, false)
+      content = content_requires_newline?(node) ? "\n#{content_of(node)}" : content_of(node)
+      if with_newline
+        "<#{tag}#{attributes}>#{content}</#{tag}>\n"
+      else
+        "<#{tag}#{attributes}>#{content}</#{tag}>"
+      end
+    end
+
+    def content_requires_newline?(node)
+      return false unless first_tag = node.children.detect {|c| c.is_a? Hpricot::Elem}
+      %w(table, ul, ol, p, div).includes?(first_tag.name)
     end
 
     def attributes(node, textile=true) #:nodoc:
@@ -183,13 +196,12 @@ module Undress
         end
 
         styles = styles(node) || {}
+        styles[%s:text-align:] ||= filtered.delete(:align)
         if bgcolor = filtered.delete(:bgcolor)
           styles[%s:background-color:] ||= bgcolor
         end
 
-        align = styles.delete(%s:text-align:) if textile
-        align ||= filtered.delete(:align)
-        if align and textile
+        if textile and align = styles.delete(%s:text-align:)
           attribs += case align.downcase
                      when 'center' then '='
                      when 'right'  then '>'

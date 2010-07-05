@@ -88,6 +88,8 @@ module Undress
       elsif e.ancestor('table')
         # can't use p textile in tables
         html_node(e, complex_table?(e))
+      elsif content_of(e).match('\A(<br\s?\/?>|\s|\n)*\z')
+        "\n\n"
       else
         "\n\n#{at}#{content_of(e)}\n\n"
       end

@@ -16,7 +16,7 @@ module Undress
     # we try to get rid of unnecessary paras...
     pre_processing("td p, th p, li p") do |p|
       if p.parent.children.detect{ |sib| sib != p and sib.to_html.match /\S/}
-        if p.attributes.to_hash.empty?
+        if p.attributes.to_hash.empty? and p.still_attached?
           p.swap p.inner_html + "<br/>"
         end
       else
@@ -159,7 +159,7 @@ module Undress
 
     def content_requires_newline?(node)
       return false unless first_tag = node.children.detect {|c| c.is_a? Hpricot::Elem}
-      %w(table, ul, ol, p, div).includes?(first_tag.name)
+      %w(table, ul, ol, p, div).include?(first_tag.name)
     end
 
     def attributes(node, textile=true) #:nodoc:

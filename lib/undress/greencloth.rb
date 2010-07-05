@@ -73,18 +73,13 @@ module Undress
     end
 
     def process_headings(h)
-      h.children.each {|e|
-        next if e.class == Hpricot::Text
-        e.parent.replace_child(e, "") if e.has_attribute?("href") && e["href"] !~ /^\/|(https?|s?ftp):\/\//
-      }
-      case h.name
-        when "h1"
-          "#{content_of(h)}\n#{'=' * h.inner_text.size}\n\n" if h.name == "h1"
-        when "h2"
-          "#{content_of(h)}\n#{'-' * h.inner_text.size}\n\n" if h.name == "h2"
-        else
-          "#{h.name}. #{content_of(h)}\n\n"
+      if h.children
+        h.children.each {|e|
+          next if e.class == Hpricot::Text
+          e.parent.replace_child(e, "") if e.has_attribute?("href") && e["href"] !~ /^\/|(https?|s?ftp):\/\//
+        }
       end
+      "#{h.name}. #{content_of(h)}\n\n"
     end
 
     def process_links_and_anchors(e)

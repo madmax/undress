@@ -85,9 +85,9 @@ module Undress
         "#{e.name}#{attributes(e)}. " : ""
       if e.parent and e.parent.name == 'blockquote'
         "#{at}#{content_of(e)}\n\n"
-      elsif e.ancestor('table') and !complex_table?(e)
-        # can't use p textile in simple tables
-        html_node(e, false)
+      elsif e.ancestor('table')
+        # can't use p textile in tables
+        html_node(e, complex_table?(e))
       else
         "\n\n#{at}#{content_of(e)}\n\n"
       end

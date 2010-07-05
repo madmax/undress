@@ -128,11 +128,16 @@ module Undress
       end
     end
 
-    def link_syntax(inner,href)
-      return "[#href]" if inner == href or inner == href[0...inner.size-3] + "..."
-      return "[#{href}]" if href.gsub(/^(https?|s?ftp):\/\//, "") == inner
+    def link_syntax(inner, href)
+      return "[#{href}]" if abbrev?(inner, href)
       inner=quote_if_needed(inner)
       "#{inner}:#{href}"
+    end
+
+    def abbrev?(short, long)
+      return true if short == long
+      short = short[0...-3] if short[-3..-1] == "..."
+      long.index(short)
     end
 
     # TODO: actually check if we have an image not just the !

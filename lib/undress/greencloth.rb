@@ -49,7 +49,7 @@ module Undress
     # text formatting
     rule_for(:pre) {|e|
       if e.children && e.children.all? {|n| n.text? && n.content =~ /^\s+$/ || n.elem? && n.name == "code" }
-        "\n\n<code>#{unescaped_content_of(e % "code")}</code>"
+        "\n\n<code>#{unescaped_content_of((e % "code") || e)}</code>"
       else
         "\n\n<pre>#{unescaped_content_of(e)}</pre>"
       end
@@ -69,7 +69,11 @@ module Undress
     }
 
     def unescaped_content_of(e)
-      e.children.map { |x| x.to_plain_text }.join
+      if e and e.children
+        e.children.map { |x| x.to_plain_text }.join
+      else
+        ''
+      end
     end
 
     def process_headings(h)
@@ -125,7 +129,7 @@ module Undress
     end
 
     def link_syntax(inner,href)
-      return "[#href]" if inner == href
+      return "[#href]" if inner == href or inner == href[0...inner.size-3] + "..."
       return "[#{href}]" if href.gsub(/^(https?|s?ftp):\/\//, "") == inner
       inner=quote_if_needed(inner)
       "#{inner}:#{href}"

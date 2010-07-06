@@ -66,7 +66,7 @@ module Undress
     rule_for(:acronym) {|e| e.has_attribute?("title") ? "#{content_of(e)}(#{e["title"]})" : content_of(e) }
 
     def wrap_with(char, node, wrap = nil)
-      wrap = complete_node?(node) if wrap.nil?
+      wrap = complete_word?(node) if wrap.nil?
       content = content_of(node)
       prefix = content.lstrip! ? " " : ""
       postfix = content.chomp! ? "<br/>" : ""

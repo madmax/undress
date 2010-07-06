@@ -113,25 +113,33 @@ module Undress
     def process_link(e)
       # title = e.has_attribute?("title") ? " (#{e["title"]})" : ""
       # return "#{content_of(e)}#{title}:#{e["href"]}"
-      inner, href = content_of(e), e.get_attribute("href")
+      href = e.get_attribute("href")
       case href
       when /^\/?#/
-        link_syntax(inner,href)
+        link_syntax(e, href)
       when /^[^\/]/
-        link_syntax(inner,href)
+        link_syntax(e, href)
       when /^\/.[^\/]*\/.[^\/]*\//
-        link_syntax(inner,href)
+        link_syntax(e, href)
       when /(?:\/page\/\+)[0-9]+$/
-        link_syntax(inner, "+#{href.gsub(/\+[0-9]+$/)}]")
+        link_syntax(e, "+#{href.gsub(/\+[0-9]+$/)}]")
       else
         process_as_wiki_link(e)
       end
     end
 
-    def link_syntax(inner, href)
-      return "[#{href}]" if abbrev?(inner, href)
-      inner=quote_if_needed(inner)
-      "#{inner}:#{href}"
+    def link_syntax(e, href)
+      inner = content_of(e)
+      if abbrev?(inner, href)
+        if href[0...7] == "http://" or href[0...4] = "www."
+          href
+        else
+          "[#{href}]"
+        end
+      else
+        inner=quote_if_needed(inner)
+        complete_word?(e) ? "#{inner}:#{href}" : "[#{inner}:#{href}]"
+      end
     end
 
     def abbrev?(short, long)
@@ -142,7 +150,7 @@ module Undress
 
     # TODO: actually check if we have an image not just the !
     def quote_if_needed(inner)
-      if inner[0] == '!' and inner[-1] == '!'
+      if inner[0..0] == '!' and inner[-1..-1] == '!'
         inner
       else
         '"' + inner + '"'

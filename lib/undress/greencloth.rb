@@ -131,14 +131,21 @@ module Undress
     def link_syntax(e, href)
       inner = content_of(e)
       if abbrev?(inner, href)
-        if href[0...7] == "http://" or href[0...4] = "www."
+        if href[0...10] == "http://www"
+          href[7..-1]
+        elsif href[0...7] == "http://" or
+          href[0...4] == "www." or
+          href[0...8] == "https://"
           href
         else
           "[#{href}]"
         end
+      elsif i = e % :img and i.single_child?
+        "#{inner}:#{href}"
+      elsif complete_word?(e)
+        %Q("#{inner}":#{href})
       else
-        inner=quote_if_needed(inner)
-        complete_word?(e) ? "#{inner}:#{href}" : "[#{inner}:#{href}]"
+        "[#{inner}->#{href}]"
       end
     end
 

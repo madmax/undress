@@ -136,14 +136,21 @@ module Undress
     rule_for(:table)   {|e| complex_table?(e) ? html_node(e) :
       "#{table_attributes(e)}\n#{content_of(e)}" }
     rule_for(:tr)      {|e| complex_table?(e) ? html_node(e) :
-      "#{row_attributes(e)}#{content_of(e)}|\n" }
+      %Q(#{"\n\n" if tr_without_table?(e)}#{row_attributes(e)}#{content_of(e)}|\n) }
     rule_for(:td, :th) {|e| complex_table?(e) ? html_node(e) :
       "|#{cell_attributes(e)}#{cell_content_of(e)}" }
 
     # if a table contains a list or a para or another table we need html table syntax
     def complex_table?(node)
-      table = node.ancestor 'table'
+      table = node.ancestor('table') and
       table.search('table, li').any?
+    end
+
+    # excel actually creates invalid html in some pastes
+    # so let's be super robust here...
+    def tr_without_table?(node)
+      !node.ancestor('table') and
+      !node.previous_node || node.previous_node.name != 'tr'
     end
 
     def html_node(node, with_newline = true)

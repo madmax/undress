@@ -128,7 +128,7 @@ html: |
   </div>
 
 in: |
-  <p style="text-align:center;">
+  <p style="text-align: center;">
   |test|me|
   </p>
 ---

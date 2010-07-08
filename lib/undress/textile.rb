@@ -83,6 +83,8 @@ module Undress
         "#{e.name}#{attributes(e)}. " : ""
       if e.parent and e.parent.name == 'blockquote'
         "#{at}#{content_of(e)}\n\n"
+      elsif e.search('table').any?
+        html_node(e, true)
       elsif e.ancestor('table')
         # can't use p textile in tables
         html_node(e, complex_table?(e))
@@ -153,8 +155,8 @@ module Undress
       !node.previous_node || node.previous_node.name != 'tr'
     end
 
-    def html_node(node, with_newline = true)
-      tag = node.name
+    def html_node(node, with_newline = true, tag = nil)
+      tag ||= node.name
       attributes = attributes(node, false)
       content = content_requires_newline?(node) ? "\n#{content_of(node)}" : content_of(node)
       if with_newline
@@ -221,7 +223,7 @@ module Undress
 
         css = process_css(node, styles)
         if css && css != ""
-          attribs += textile ? "{#{css}}" : %Q( style="#{css}")
+          attribs += textile ? "{#{css}}" : %Q( style="#{css};")
         end
 
       end

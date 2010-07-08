@@ -68,6 +68,25 @@ module Undress
       e.to_html
     }
 
+    # text formatting and layout
+    rule_for(:p, :div) do |e|
+      at = ( attributes(e) != "" ) ?
+        "p#{attributes(e)}. " : ""
+      if e.parent and e.parent.name == 'blockquote'
+        "#{at}#{content_of(e)}\n\n"
+      elsif e.search('table').any?
+        html_node(e, true, 'p')
+      elsif e.ancestor('table')
+        # can't use p textile in tables
+        html_node(e, complex_table?(e), 'p')
+      elsif content_of(e).match('\A(<br\s?\/?>|\s|\n)*\z')
+        # empty para gets converted to newlines
+        "\n\n"
+      else
+        "\n\n#{at}#{content_of(e)}\n\n"
+      end
+    end
+
     def unescaped_content_of(e)
       if e and e.children
         e.children.map { |x| x.to_plain_text }.join

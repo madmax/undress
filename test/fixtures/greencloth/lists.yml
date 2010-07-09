@@ -249,30 +249,45 @@ out: |-
   </ul>
 ---
 name: ordered list immediately following extended block
+html: |-
+  <div>Here it comes.</div>
+  <div>A simple example.</div>
+  <ol>
+  	<li>One</li>
+  	<li>Two</li>
 in: |-
-  div.. Here it comes.
+  Here it comes.
   
   A simple example.
+
   # One
   # Two
 out: |-
-  <div>Here it comes.</div>
-  <div>A simple example.</div>
+  <p>Here it comes.</p>
+  <p>A simple example.</p>
   <ol>
   	<li>One</li>
   	<li>Two</li>
   </ol>
 ---
 name: unordered list immediately following extended block
+html: |-
+  <div>Here it comes.</div>
+  <div>A simple example.</div>
+  <ul>
+  	<li>One</li>
+  	<li>Two</li>
+  </ul>
 in: |-
-  div.. Here it comes.
+  Here it comes.
   
   A simple example.
+
   * One
   * Two
 out: |-
-  <div>Here it comes.</div>
-  <div>A simple example.</div>
+  <p>Here it comes.</p>
+  <p>A simple example.</p>
   <ul>
   	<li>One</li>
   	<li>Two</li>

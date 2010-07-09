@@ -134,34 +134,73 @@ latex: "\\ensuremath{^\\textrm{a phrase}}\n\n"
 in: ~a phrase~
 out: <p><sub>a phrase</sub></p>
 ---
-in: %(myclass)SPAN%
-out: <p><span class="myclass"><span class="caps">SPAN</span></span></p>
-no_span_caps_html: <p><span class="myclass">SPAN</span></p>
+html: <p><span class="myclass"><span class="caps">SPAN</span></span></p>
+in: SPAN
+out: <p><span class="caps">SPAN</span></p>
 ---
 in: %{color:red}red%
 out: <p><span style="color:red;">red</span></p>
 ---
-in: _(big)red_
-out: <p><em class="big">red</em></p>
+html: <p><em class="big">red</em></p>
+in: _red_
+out: <p><em>red</em></p>
 ---
-in: p(bob). A paragraph
-out: <p class="bob">A paragraph</p>
+html: <p class="bob">A paragraph</p>
+in: A paragraph
+out: <p>A paragraph</p>
 ---
 in: p{color:#ddd}. A paragraph
 out: <p style="color:#ddd;">A paragraph</p>
 ---
-in: h2()>. right-aligned header2, indented 1em both side
-out: <h2 style="padding-left:1em;padding-right:1em;text-align:right;" class="first">right-aligned header2, indented 1em both side</h2>
+html: <h2 style="padding-left:1em;padding-right:1em;text-align:right;" class="first">right-aligned header2, indented 1em both side</h2>
+in: h2>. right-aligned header2, indented 1em both side
+out: <h2 style="text-align:right;" class="first">right-aligned header2, indented 1em both side</h2>
 ---
 in: h3=. centered header
 out: <h3 style="text-align:center;">centered header</h3>
 ---
+# we do not keep default table styles
+html: |-
+  <table style="border:1px solid black;">
+  	<tr class="odd">
+  		<td>This</td>
+  		<td>is</td>
+  		<td>a</td>
+  		<td>row</td>
+  	</tr>
+  	<tr class="even">
+  		<td>This</td>
+  		<td>is</td>
+  		<td>a</td>
+  		<td>row</td>
+  	</tr>
+  </table>
 in: |-
-  table{border:1px solid black}.
   |This|is|a|row|
   |This|is|a|row|
 out: |-
-  <table style="border:1px solid black;">
+  <table>
+  	<tr class="odd">
+  		<td>This</td>
+  		<td>is</td>
+  		<td>a</td>
+  		<td>row</td>
+  	</tr>
+  	<tr class="even">
+  		<td>This</td>
+  		<td>is</td>
+  		<td>a</td>
+  		<td>row</td>
+  	</tr>
+  </table>
+---
+# but we do keep extraordinary styles
+in: |-
+  table{border:1px solid red}.
+  |This|is|a|row|
+  |This|is|a|row|
+out: |-
+  <table style="border:1px solid red;">
   	<tr class="odd">
   		<td>This</td>
   		<td>is</td>

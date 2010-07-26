@@ -66,8 +66,9 @@ module Undress
     def wrap_with(char, node, no_wrap = nil)
       no_wrap = complete_word?(node) if no_wrap.nil?
       content = content_of(node)
-      prefix = content.lstrip! ? " " : ""
+      prefix = content.sub!(/^(&nbsp;|\s)*/, "") ? " " : ""
       postfix = content.chomp! ? "<br/>" : ""
+      postfix = content.sub!(/(&nbsp;|\s)*$/, "") ? " " : ""
       postfix = content.rstrip! ? " #{postfix}" : postfix
       return if content == ""
       if no_wrap

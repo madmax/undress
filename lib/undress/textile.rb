@@ -117,7 +117,7 @@ module Undress
     rule_for(:li) {|e|
       token = e.parent.name == "ul" ? "*" : "#"
       nesting = e.ancestors.inject(1) {|total,node| total + (%(ul ol).include?(node.name) ? 0 : 1) }
-      "\n#{token * nesting}#{start} #{content_of(e)}"
+      "\n#{token * nesting} #{content_of(e)}"
     }
     rule_for(:ul, :ol) {|e|
       if e.ancestors.detect {|node| %(ul ol).include?(node.name) }

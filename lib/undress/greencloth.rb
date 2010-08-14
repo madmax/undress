@@ -133,11 +133,11 @@ module Undress
     def process_anchor(e)
       name = e.get_attribute("name")
       if e.get_attribute("href")
-        "[#  -> #{name} #] #{process_link(e)}"
+        "[#  #{name} #] #{process_link(e)}"
       elsif name == content_of(e).gsub(/\s/,'-')
         "[# #{content_of(e)} #]"
       else
-        "[# -> #{name} #] #{content_of(e)}"
+        "[# #{name} #] #{content_of(e)}"
       end
     end
 

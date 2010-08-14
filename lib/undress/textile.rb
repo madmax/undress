@@ -79,7 +79,7 @@ module Undress
 
     # text formatting and layout
     rule_for(:p, :div) do |e|
-      at = ( e.name == 'div' or attributes(e) != "" ) ?
+      at = ( attributes(e) != "" ) ?
         "#{e.name}#{attributes(e)}. " : ""
       if e.parent and e.parent.name == 'blockquote'
         "#{at}#{content_of(e)}\n\n"
@@ -91,6 +91,7 @@ module Undress
       elsif content_of(e).match('\A(<br\s?\/?>|\s|\n)*\z')
         "\n\n"
       else
+        at = 'div.' if at == "" and e.name == 'div'
         "\n\n#{at}#{content_of(e)}\n\n"
       end
     end

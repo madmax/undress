@@ -53,7 +53,7 @@ module Undress
       "!#{attributes(e)}#{e["src"]}#{alt}!"
     }
     rule_for(:span)  {|e| attributes(e) == "" ? content_of(e) : wrap_with('%', e) }
-    rule_for(:strong, :b)  {|e| wrap_with('*', e, true) }
+    rule_for(:strong, :b)  {|e| wrap_with('*', e) }
     rule_for(:em)      {|e| wrap_with('_', e) }
     rule_for(:code)    {|e| "@#{attributes(e)}#{content_of(e)}@" }
     rule_for(:cite)    {|e| "??#{attributes(e)}#{content_of(e)}??" }
@@ -66,9 +66,9 @@ module Undress
     def wrap_with(char, node, no_wrap = nil)
       no_wrap = complete_word?(node) if no_wrap.nil?
       content = content_of(node)
-      prefix = content.sub!(/^(&nbsp;|\s)*/, "") ? " " : ""
+      prefix = content.sub!(/^(&nbsp;|\s)+/, "") ? " " : ""
       postfix = content.chomp! ? "<br/>" : ""
-      postfix = content.sub!(/(&nbsp;|\s)*$/, "") ? " #{postfix}" : postfix
+      postfix = content.sub!(/(&nbsp;|\s)+$/, "") ? " #{postfix}" : postfix
       return if content == ""
       if no_wrap
         "#{prefix}#{char}#{attributes(node)}#{content}#{char}#{postfix}"

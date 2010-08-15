@@ -175,16 +175,19 @@ module Undress
         end
       elsif i = e % :img and i.single_child?
         "#{inner}:#{href}"
-      elsif complete_word?(e)
-        %Q("#{inner}":#{href})
       else
-        "[#{inner}->#{href}]"
+        "[#{inner} -> #{href}]"
       end
     end
 
     def abbrev?(short, long)
+      long = long[1..-1] if long[0...1] == '#'
+      long = long[8..-1] if long[0...8] == "https://"
+      long = long[7..-1] if long[0...10] == "http://www"
+      long = long[0..-2] if long[-1..-1] == '/'
       return true if short == long
-      short = short[0...-3] if short[-3..-1] == "..."
+      return false unless short[-3..-1] == "..."
+      short = short[0...-3]
       long.index(short)
     end
 

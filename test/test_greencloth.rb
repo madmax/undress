@@ -346,13 +346,13 @@ class Undress::GreenClothTest < Test::Unit::TestCase
 
     test "convert a link to an absolute path" do
       html = "<p>this is a <a href='/an/absolute/path'>link to</a> in some text</p>"
-      greencloth = "this is a \"link to\":/an/absolute/path in some text\n"
+      greencloth = "this is a [link to -> /an/absolute/path] in some text\n"
       assert_renders_greencloth greencloth, html
     end
 
     test "convert a link to an external domain" do
       html = "<p>this is a <a href='https://riseup.net'>link to</a> a url</p>"
-      greencloth = "this is a \"link to\":https://riseup.net a url\n"
+      greencloth = "this is a [link to -> https://riseup.net] a url\n"
       assert_renders_greencloth greencloth, html
     end
 
@@ -376,7 +376,7 @@ class Undress::GreenClothTest < Test::Unit::TestCase
 
     test "link with dashes should keep the dashes" do
       html = "<p><a href='/-dashes/in/the/link-'>link to</a></p>"
-      greencloth = "\"link to\":/-dashes/in/the/link-\n"
+      greencloth = "[link to -> /-dashes/in/the/link-]\n"
       assert_renders_greencloth greencloth, html
     end
 
@@ -408,13 +408,13 @@ class Undress::GreenClothTest < Test::Unit::TestCase
     # this is a reduced support of it
     test "anchors and links" do
       html = "<p>link to <a href='/page/anchors#like-so'>anchors</a> or <a href='/page/like#so'>maybe</a> or <a href='#so'>just</a> or <a href='#so'>so</a></p>"
-      greencloth = "link to [anchors -> anchors#like so] or [maybe -> like#so] or \"just\":#so or [#so]\n"
+      greencloth = "link to [anchors -> anchors#like so] or [maybe -> like#so] or [just -> #so] or [#so]\n"
       assert_renders_greencloth greencloth, html
     end
 
     test "more anchors" do
       html = "<p><a href='#5'>link</a> to a numeric anchor <a name='5'>5</a></p>"
-      greencloth = "\"link\":#5 to a numeric anchor [# 5 #]\n"
+      greencloth = "[link -> #5] to a numeric anchor [# 5 #]\n"
       assert_renders_greencloth greencloth, html
     end
 

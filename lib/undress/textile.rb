@@ -96,7 +96,7 @@ module Undress
       end
     end
 
-    rule_for(:br)         {|e| "\n" }
+    rule_for(:br)         {|e| "\n" unless e.parent.name == 'td' and e.last_child?}
     rule_for(:blockquote) {|e| "\n\nbq#{attributes(e)}. #{content_of(e)}\n\n" }
     rule_for(:pre)        {|e|
       if e.children && e.children.all? {|n| n.text? && n.content =~ /^\s+$/ || n.elem? && n.name == "code" }
@@ -153,10 +153,7 @@ module Undress
     # so let's be super robust here...
     def tr_without_table?(node)
       return false if node.ancestor('table')
-      while node = node.previous
-        return false if node.name == 'tr'
-        return true if node.name != ''
-      end
+      return node.first_child?
     end
 
     def html_node(node, with_newline = true, tag = nil)
